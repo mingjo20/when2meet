@@ -3,8 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:when2meet/dimensions/configs/logoConfig.dart';
 import 'package:when2meet/dimensions/configs/screenConfig.dart';
 import 'package:when2meet/screens/mainScreen.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting('ko'); // 한국어 로케일 초기화
   //AppBar 색상을 흰색으로 설정
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
@@ -23,6 +26,7 @@ class Wheen2Meet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      locale: const Locale('ko'), // 한국어 설정
       debugShowCheckedModeBanner: false,
       title: 'Sync_Calendar',
       theme: ThemeData(

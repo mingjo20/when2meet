@@ -1,9 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:when2meet/dimensions/configs/colorConfig.dart';
 import 'package:when2meet/dimensions/configs/logoConfig.dart';
 import 'package:when2meet/dimensions/configs/screenConfig.dart';
 import 'package:when2meet/screens/mainScreen.dart';
 import 'package:intl/date_symbol_data_local.dart';
+
+final ThemeData basicTheme = ThemeData(
+  brightness: Brightness.light, // 앱의 전체 밝기 모드 설정 (light 또는 dark)
+  primaryColor: Colorconfig.primaryColor, // 앱의 주요 색상, AppBar 및 강조 UI 요소 등에 사용됨
+  scaffoldBackgroundColor: Colors.white, // Scaffold의 기본 배경색 (페이지 배경색)
+  splashColor: Colors.blue, // 버튼 클릭 시 발생하는 스플래시 효과의 색상 (투명으로 설정하면 없앰)
+  highlightColor:
+      Colors.purple, // 버튼 등 누를 때의 강조 색상 (보통 회색 하이라이트), 투명으로 설정 시 제거됨
+  fontFamily: 'PyeojinGothic', // 앱 전체에 적용될 기본 글꼴
+
+  textTheme: const TextTheme(
+    bodyMedium: TextStyle(
+      fontSize: 32.0, // 기본 텍스트 크기 (bodyMedium에 한함)
+      fontWeight: FontWeight.bold, // 기본 텍스트 두께
+      color: Colors.white, // 기본 텍스트 색상
+    ),
+  ), // 텍스트 스타일 테마 (기본 텍스트 스타일 모음 정의)
+);
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,21 +45,10 @@ class Wheen2Meet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      locale: const Locale('ko'), // 한국어 설정
+      locale: const Locale('ko'),
       debugShowCheckedModeBanner: false,
       title: 'Sync_Calendar',
-      theme: ThemeData(
-        splashColor: Colors.transparent,
-        highlightColor: Colors.transparent,
-        fontFamily: 'KCC-Ganpan',
-        textTheme: const TextTheme(
-          bodyMedium: TextStyle(
-            fontSize: 32.0,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-        ),
-      ),
+      theme: basicTheme,
       home: const LoadingScreen(),
     );
   }
@@ -92,7 +100,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
             ),
             SizedBox(height: sc.h / 10),
             CircularProgressIndicator(
-              color: const Color(0xFFE9435A),
+              color: Colorconfig.secondaryColor,
             ), // 로딩 애니메이션
           ],
         ),

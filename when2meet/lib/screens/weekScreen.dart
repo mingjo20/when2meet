@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:when2meet/dimensions/configs/screenConfig.dart';
 
+/// 주간 시간 선택 화면 위젯
 class WeekScreen extends StatefulWidget {
-  final DateTime startDate;
+  final DateTime startDate; // 시작 날짜
   const WeekScreen({super.key, required this.startDate});
 
   @override
@@ -10,36 +12,77 @@ class WeekScreen extends StatefulWidget {
 }
 
 class _WeekScreenState extends State<WeekScreen> {
-  late List<DateTime> weekDates;
-  late List<String> timeSlots;
-  final Set<String> selectedKeys = {};
+  ScreenConfig sc = ScreenConfig.instance;
 
-  bool isSelecting = false;
-  bool selectMode = true;
-  final GlobalKey _gridKey = GlobalKey();
-  double cellWidth = 80;
-  double cellHeight = 50;
+  late List<DateTime> weekDates; // 7일치 날짜 목록
+  late List<String> timeSlots; // 1시간단위 시간대 목록 (00:00 ~ 23:00 총 24개)
+  final Set<String> selectedKeys = {}; // 선택된 셀의 key 저장용
+
+  bool isSelecting = false; // 드래그로 셀 선택 중인지 여부
+  bool selectMode = true; // true: 선택 모드, false: 해제 모드
+  final GlobalKey _gridKey = GlobalKey(); // Grid 위치 계산용 키
+
+  // 스크롤 컨트롤러
+  final ScrollController _verticalScrollController =
+      ScrollController(); // 본격 셀 영역 세로 스크롤
+  final ScrollController _timeLabelScrollController =
+      ScrollController(); // 좌측 시간 레이블 세로 스크롤
+  final ScrollController _horizontalScrollController =
+      ScrollController(); // 상단 요일 가로 스크롤
+
+  double cellWidth = 80; // 셀 너비
+  double cellHeight = 35; // 셀 높이
+
+  double timeFontSize = 8; // 시간 폰트 사이즈
+  double dayFontSize = 10; // 요일 폰트 사이즈
 
   @override
   void initState() {
     super.initState();
+
+    // 주간 날짜 리스트 생성
     weekDates = List.generate(
       7,
       (i) => widget.startDate.add(Duration(days: i)),
     );
+
+    /*
+    // 시간대 리스트 생성 (30분 간격으로)
     timeSlots = List.generate(48, (i) {
       final hour = i ~/ 2;
       final min = (i % 2) * 30;
       return '${hour.toString().padLeft(2, '0')}:${min.toString().padLeft(2, '0')}';
     });
+    */
+    // 시간대 리스트 생성 (1시간 간격으로)
+    timeSlots = List.generate(24, (i) {
+      final hour = i ~/ 1;
+      return '${hour.toString().padLeft(2, '0')}:00';
+    });
+
+    // 시간 라벨 스크롤은 본 셀 스크롤에 따라 자동 이동
+    _verticalScrollController.addListener(() {
+      _timeLabelScrollController.jumpTo(_verticalScrollController.offset);
+    });
   }
 
+  @override
+  void dispose() {
+    // 컨트롤러 해제
+    _verticalScrollController.dispose();
+    _timeLabelScrollController.dispose();
+    _horizontalScrollController.dispose();
+    super.dispose();
+  }
+
+  /// 셀의 고유 key 생성 (예: 2024-01-01_09:30)
   String _key(int row, int col) {
     final date = weekDates[col];
     final time = timeSlots[row];
     return '${DateFormat('yyyy-MM-dd').format(date)}_$time';
   }
 
+  /// 셀 선택/해제 적용
   void _applyKey(String key) {
     setState(() {
       if (selectMode) {
@@ -50,6 +93,7 @@ class _WeekScreenState extends State<WeekScreen> {
     });
   }
 
+  /// 드래그 중 선택 처리
   void _handleDrag(Offset globalPosition) {
     final renderBox = _gridKey.currentContext?.findRenderObject() as RenderBox?;
     if (renderBox == null) return;
@@ -58,7 +102,8 @@ class _WeekScreenState extends State<WeekScreen> {
     final col = (localPos.dx / cellWidth).floor();
     final row = (localPos.dy / cellHeight).floor();
 
-    if (row >= 0 && row < 48 && col >= 0 && col < 7) {
+    // 유효한 범위일 때만 처리
+    if (row >= 0 && row < 24 && col >= 0 && col < 7) {
       final key = _key(row, col);
       if (selectMode && !selectedKeys.contains(key)) {
         _applyKey(key);
@@ -77,36 +122,17 @@ class _WeekScreenState extends State<WeekScreen> {
           '${DateFormat.yMMMMd('ko').format(weekDates.last)}',
         ),
       ),
-      body: Column(
+      body: Row(
         children: [
-          // 요일 헤더
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                const SizedBox(width: 60),
-                ...weekDates.map((date) {
-                  final label = DateFormat('E\ndd').format(date);
-                  return Container(
-                    width: cellWidth,
-                    height: 50,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey),
-                    ),
-                    child: Text(label, textAlign: TextAlign.center),
-                  );
-                }).toList(),
-              ],
-            ),
-          ),
-          Expanded(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 시간 라벨
-                SingleChildScrollView(
+          // 좌측 시간 라벨
+          Column(
+            children: [
+              const SizedBox(height: 50), // 요일 헤더 높이만큼 패딩
+              Expanded(
+                child: SingleChildScrollView(
+                  controller: _timeLabelScrollController,
                   scrollDirection: Axis.vertical,
+                  physics: const NeverScrollableScrollPhysics(), // 직접 스크롤 방지
                   child: Column(
                     children: timeSlots
                         .map(
@@ -127,10 +153,38 @@ class _WeekScreenState extends State<WeekScreen> {
                         .toList(),
                   ),
                 ),
-                Expanded(
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      return GestureDetector(
+              ),
+            ],
+          ),
+          // 우측 전체 스케줄 테이블
+          Expanded(
+            child: SingleChildScrollView(
+              controller: _horizontalScrollController,
+              scrollDirection: Axis.horizontal,
+              child: Column(
+                children: [
+                  // 상단 요일 헤더
+                  Row(
+                    children: weekDates.map((date) {
+                      final label = DateFormat('E\ndd').format(date);
+                      return Container(
+                        width: cellWidth,
+                        height: 50,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey),
+                        ),
+                        child: Text(label, textAlign: TextAlign.center),
+                      );
+                    }).toList(),
+                  ),
+                  // 셀 영역
+                  Expanded(
+                    child: SingleChildScrollView(
+                      controller: _verticalScrollController,
+                      scrollDirection: Axis.vertical,
+                      child: GestureDetector(
+                        // 단일 클릭 시 셀 선택/해제
                         onTapDown: (details) {
                           final box =
                               _gridKey.currentContext?.findRenderObject()
@@ -141,7 +195,7 @@ class _WeekScreenState extends State<WeekScreen> {
                           );
                           final col = (local.dx / cellWidth).floor();
                           final row = (local.dy / cellHeight).floor();
-                          if (row >= 0 && row < 48 && col >= 0 && col < 7) {
+                          if (row >= 0 && row < 24 && col >= 0 && col < 7) {
                             final key = _key(row, col);
                             setState(() {
                               if (selectedKeys.contains(key)) {
@@ -154,59 +208,55 @@ class _WeekScreenState extends State<WeekScreen> {
                             });
                           }
                         },
+                        // 길게 누르면 드래그 시작
                         onLongPressStart: (details) {
                           isSelecting = true;
                           _handleDrag(details.globalPosition);
                         },
+                        // 드래그 이동 중 계속 셀 적용
                         onLongPressMoveUpdate: (details) {
                           if (isSelecting) _handleDrag(details.globalPosition);
                         },
+                        // 드래그 종료
                         onLongPressEnd: (_) {
                           isSelecting = false;
                         },
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.vertical,
-                            child: Container(
-                              key: _gridKey,
-                              width: cellWidth * 7,
-                              height: cellHeight * 48,
-                              child: GridView.builder(
-                                padding: EdgeInsets.zero,
-                                physics: const NeverScrollableScrollPhysics(),
-                                itemCount: 7 * 48,
-                                gridDelegate:
-                                    SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 7,
-                                      childAspectRatio: cellWidth / cellHeight,
-                                    ),
-                                itemBuilder: (context, index) {
-                                  final row = index ~/ 7;
-                                  final col = index % 7;
-                                  final key = _key(row, col);
-                                  final isSelected = selectedKeys.contains(key);
-                                  return Container(
-                                    margin: const EdgeInsets.all(0.5),
-                                    decoration: BoxDecoration(
-                                      color: isSelected
-                                          ? Colors.red
-                                          : Colors.white,
-                                      border: Border.all(
-                                        color: Colors.grey.shade300,
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
+                        child: Container(
+                          key: _gridKey,
+                          width: cellWidth * 7,
+                          height: cellHeight * 24,
+                          child: GridView.builder(
+                            padding: EdgeInsets.zero,
+                            physics:
+                                const NeverScrollableScrollPhysics(), // 내 스크롤 사용
+                            itemCount: 7 * 24,
+                            gridDelegate:
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 7,
+                                  childAspectRatio: cellWidth / cellHeight,
+                                ),
+                            itemBuilder: (context, index) {
+                              final row = index ~/ 7;
+                              final col = index % 7;
+                              final key = _key(row, col);
+                              final isSelected = selectedKeys.contains(key);
+                              return Container(
+                                margin: const EdgeInsets.all(0.5),
+                                decoration: BoxDecoration(
+                                  color: isSelected ? Colors.red : Colors.white,
+                                  border: Border.all(
+                                    color: Colors.grey.shade300,
+                                  ),
+                                ),
+                              );
+                            },
                           ),
                         ),
-                      );
-                    },
+                      ),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],

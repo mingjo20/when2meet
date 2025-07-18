@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:when2meet/dimensions/configs/ColorConfig.dart';
+import 'package:when2meet/dimensions/configs/sizeConfig.dart';
 import 'package:when2meet/functions/calendarMonth.dart'; // 해당 위젯은 이전에 구현한 MonthView용 위젯입니다.
 
 class CalendarScreen extends StatefulWidget {
@@ -34,11 +36,20 @@ class _CalendarScreenState extends State<CalendarScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: ColorConfig.primaryColorBackground,
       appBar: AppBar(
-        title: const Text('Sync_Calendar'),
+        backgroundColor: ColorConfig.primaryColor,
+        title: Text(
+          'Sync_Calendar',
+          style: TextStyle(
+            color: ColorConfig.iconColor,
+            fontSize: SizeConfig.size20,
+            fontWeight: FontWeight.w300,
+          ),
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.chevron_left),
+            icon: Icon(Icons.chevron_left, color: ColorConfig.iconColor),
             onPressed: () {
               if (_pageController.page! > 0) {
                 _pageController.previousPage(
@@ -49,7 +60,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
             },
           ),
           IconButton(
-            icon: const Icon(Icons.chevron_right),
+            icon: Icon(Icons.chevron_right, color: ColorConfig.iconColor),
             onPressed: () {
               if (_pageController.page! < totalMonths - 1) {
                 _pageController.nextPage(

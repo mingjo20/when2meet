@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:when2meet/screens/calendarScreen.dart';
+import 'package:when2meet/dimensions/configs/ColorConfig.dart';
+import 'package:when2meet/dimensions/configs/sizeConfig.dart';
 import 'package:when2meet/screens/weekScreen.dart';
 
 class CalendarMonthWidget extends StatefulWidget {
@@ -13,7 +14,7 @@ class CalendarMonthWidget extends StatefulWidget {
 
 class _CalendarMonthWidgetState extends State<CalendarMonthWidget> {
   void onTap(DateTime day) {
-    Navigator.pushReplacement(
+    Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => WeekScreen(startDate: day)),
     );
@@ -44,10 +45,17 @@ class _CalendarMonthWidgetState extends State<CalendarMonthWidget> {
             alignment: Alignment.center,
             margin: const EdgeInsets.all(4),
             decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey),
+              border: Border.all(color: ColorConfig.iconColor),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Text('$i'),
+            child: Text(
+              '$i',
+              style: TextStyle(
+                color: ColorConfig.iconColor,
+                fontSize: SizeConfig.size28,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
           ),
         ),
       );
@@ -60,9 +68,20 @@ class _CalendarMonthWidgetState extends State<CalendarMonthWidget> {
   Widget build(BuildContext context) {
     final monthLabel = DateFormat.yMMMM('ko').format(widget.date);
     return Scaffold(
-      appBar: AppBar(title: Text(monthLabel)),
+      backgroundColor: ColorConfig.primaryColor,
+      appBar: AppBar(
+        backgroundColor: ColorConfig.primaryColor,
+        title: Text(
+          monthLabel,
+          style: TextStyle(
+            color: ColorConfig.iconColor,
+            fontSize: SizeConfig.size20,
+            fontWeight: FontWeight.w300,
+          ),
+        ),
+      ),
       body: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: EdgeInsets.all(SizeConfig.size10),
         child: GridView.count(crossAxisCount: 7, children: buildDays()),
       ),
     );

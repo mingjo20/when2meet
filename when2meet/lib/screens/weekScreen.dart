@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:when2meet/dimensions/configs/ColorConfig.dart';
 import 'package:when2meet/dimensions/configs/screenConfig.dart';
+import 'package:when2meet/dimensions/configs/sizeConfig.dart';
 
 /// 주간 시간 선택 화면 위젯
 class WeekScreen extends StatefulWidget {
@@ -30,8 +32,11 @@ class _WeekScreenState extends State<WeekScreen> {
   final ScrollController _horizontalScrollController =
       ScrollController(); // 상단 요일 가로 스크롤
 
-  double cellWidth = 80; // 셀 너비
-  double cellHeight = 35; // 셀 높이
+  double dayWidth = 80; // = cellWidth
+  double dayHeight = 70;
+
+  double timeWidth = 50;
+  double timeHeight = 35; // = cellHeight
 
   double timeFontSize = 8; // 시간 폰트 사이즈
   double dayFontSize = 10; // 요일 폰트 사이즈
@@ -99,8 +104,8 @@ class _WeekScreenState extends State<WeekScreen> {
     if (renderBox == null) return;
 
     final localPos = renderBox.globalToLocal(globalPosition);
-    final col = (localPos.dx / cellWidth).floor();
-    final row = (localPos.dy / cellHeight).floor();
+    final col = (localPos.dx / dayWidth).floor();
+    final row = (localPos.dy / timeHeight).floor();
 
     // 유효한 범위일 때만 처리
     if (row >= 0 && row < 24 && col >= 0 && col < 7) {
@@ -116,10 +121,29 @@ class _WeekScreenState extends State<WeekScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: ColorConfig.primaryColorBackground,
       appBar: AppBar(
-        title: Text(
-          '${DateFormat.yMMMMd('ko').format(widget.startDate)} ~ '
-          '${DateFormat.yMMMMd('ko').format(weekDates.last)}',
+        backgroundColor: ColorConfig.primaryColor,
+        title: Row(
+          children: [
+            SizedBox(width: SizeConfig.size40),
+            Text(
+              //달이 넘어가면 월 정보까지 print하기
+              widget.startDate.month != weekDates.last.month
+                  ? '${widget.startDate.month}월 ${widget.startDate.day}일 - ${weekDates.last.month}월 ${weekDates.last.day}일'
+                  : '${widget.startDate.month}월 ${widget.startDate.day}일 - ${weekDates.last.day}일',
+              // 20XX년 XX월 XX일 ~ 20XX년 XX월 XX일 형식으로 나타내고 싶다면 아래 방식으로
+              /*
+            '${DateFormat.yMMMMd('ko').format(widget.startDate)} ~ '
+            '${DateFormat.yMMMMd('ko').format(weekDates.last)}',
+             */
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: SizeConfig.size20,
+                fontWeight: FontWeight.w300,
+              ),
+            ),
+          ],
         ),
       ),
       body: Row(
@@ -127,7 +151,10 @@ class _WeekScreenState extends State<WeekScreen> {
           // 좌측 시간 라벨
           Column(
             children: [
-              const SizedBox(height: 50), // 요일 헤더 높이만큼 패딩
+              Container(
+                height: dayHeight,
+                color: ColorConfig.primaryColor,
+              ), // 요일 헤더 높이만큼 패딩
               Expanded(
                 child: SingleChildScrollView(
                   controller: _timeLabelScrollController,
@@ -137,16 +164,22 @@ class _WeekScreenState extends State<WeekScreen> {
                     children: timeSlots
                         .map(
                           (time) => Container(
-                            width: 60,
-                            height: cellHeight,
+                            width: timeWidth,
+                            height: timeHeight,
                             alignment: Alignment.center,
                             decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey.shade300),
-                              color: Colors.grey[200],
+                              border: Border.all(
+                                color: ColorConfig.primaryColorBackground,
+                              ),
+                              color: ColorConfig.primaryColor,
                             ),
                             child: Text(
                               time,
-                              style: const TextStyle(fontSize: 12),
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: SizeConfig.size12,
+                                fontWeight: FontWeight.w400,
+                              ),
                             ),
                           ),
                         )
@@ -168,13 +201,24 @@ class _WeekScreenState extends State<WeekScreen> {
                     children: weekDates.map((date) {
                       final label = DateFormat('E\ndd').format(date);
                       return Container(
-                        width: cellWidth,
-                        height: 50,
+                        width: dayWidth,
+                        height: dayHeight,
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey),
+                          border: Border.all(
+                            color: ColorConfig.primaryColorBackground,
+                          ),
+                          color: ColorConfig.primaryColor,
                         ),
-                        child: Text(label, textAlign: TextAlign.center),
+                        child: Text(
+                          label,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: SizeConfig.size20,
+                            fontWeight: FontWeight.w300,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
                       );
                     }).toList(),
                   ),
@@ -193,8 +237,8 @@ class _WeekScreenState extends State<WeekScreen> {
                           final local = box.globalToLocal(
                             details.globalPosition,
                           );
-                          final col = (local.dx / cellWidth).floor();
-                          final row = (local.dy / cellHeight).floor();
+                          final col = (local.dx / dayWidth).floor();
+                          final row = (local.dy / timeHeight).floor();
                           if (row >= 0 && row < 24 && col >= 0 && col < 7) {
                             final key = _key(row, col);
                             setState(() {
@@ -223,8 +267,8 @@ class _WeekScreenState extends State<WeekScreen> {
                         },
                         child: Container(
                           key: _gridKey,
-                          width: cellWidth * 7,
-                          height: cellHeight * 24,
+                          width: dayWidth * 7,
+                          height: timeHeight * 24,
                           child: GridView.builder(
                             padding: EdgeInsets.zero,
                             physics:
@@ -233,19 +277,22 @@ class _WeekScreenState extends State<WeekScreen> {
                             gridDelegate:
                                 SliverGridDelegateWithFixedCrossAxisCount(
                                   crossAxisCount: 7,
-                                  childAspectRatio: cellWidth / cellHeight,
+                                  childAspectRatio: dayWidth / timeHeight,
                                 ),
                             itemBuilder: (context, index) {
                               final row = index ~/ 7;
                               final col = index % 7;
                               final key = _key(row, col);
                               final isSelected = selectedKeys.contains(key);
+                              //셀 영역 렌더링
                               return Container(
                                 margin: const EdgeInsets.all(0.5),
                                 decoration: BoxDecoration(
-                                  color: isSelected ? Colors.red : Colors.white,
+                                  color: isSelected
+                                      ? Colors.red
+                                      : ColorConfig.primaryColor,
                                   border: Border.all(
-                                    color: Colors.grey.shade300,
+                                    color: ColorConfig.primaryColorBackground,
                                   ),
                                 ),
                               );

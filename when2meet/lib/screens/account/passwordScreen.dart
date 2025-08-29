@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:when2meet/buttons/formButton.dart';
+import 'package:when2meet/dimensions/configs/colorConfig.dart';
 import 'package:when2meet/dimensions/configs/gapConfig.dart';
 import 'package:when2meet/dimensions/configs/sizeConfig.dart';
-import 'package:when2meet/screens/account/BirthdayScreen.dart';
+import 'package:when2meet/screens/account/birthdayScreen.dart';
 
 class PasswordScreen extends StatefulWidget {
   const PasswordScreen({super.key});
@@ -88,7 +89,17 @@ class _PasswordScreenState extends State<PasswordScreen> {
     return GestureDetector(
       onTap: _onScaffoldTap,
       child: Scaffold(
-        appBar: AppBar(title: const Text("Password")),
+        //입력 키보드가 렌더링에 영향을 주지 않도록 설정
+        resizeToAvoidBottomInset: false,
+        backgroundColor: ColorConfig.primaryColor,
+        appBar: AppBar(
+          backgroundColor: ColorConfig.primaryColor,
+          foregroundColor: ColorConfig.iconColor,
+          title: Text(
+            "Password",
+            style: TextStyle(color: ColorConfig.iconColor),
+          ),
+        ),
         body: Padding(
           padding: const EdgeInsets.symmetric(
             horizontal: SizeConfig.size28,
@@ -112,6 +123,7 @@ class _PasswordScreenState extends State<PasswordScreen> {
                 //키보드에서 'done' 혹은 '완료'버튼을 눌렀을 때도 next버튼을
                 //눌렀을 때와 동일하게 작동하게 만드는 것
                 onEditingComplete: _onNextTap,
+                style: TextStyle(color: ColorConfig.iconColor),
                 decoration: InputDecoration(
                   //각각 앞과 뒤에 오는 아이콘으로 focus되면 색갈이 바뀐다.
                   /*prefixIcon: Icon(Icons.ac_unit),
@@ -125,7 +137,7 @@ class _PasswordScreenState extends State<PasswordScreen> {
                         onTap: _onClearTap, //작성중인던 것 전부 삭제
                         child: FaIcon(
                           FontAwesomeIcons.solidCircleXmark,
-                          color: Colors.grey.shade500,
+                          color: ColorConfig.iconColor,
                           size: SizeConfig.size20,
                         ),
                       ),
@@ -136,22 +148,26 @@ class _PasswordScreenState extends State<PasswordScreen> {
                           _obscureText
                               ? FontAwesomeIcons.eyeSlash
                               : FontAwesomeIcons.eye,
-                          color: Colors.grey.shade500,
+                          color: ColorConfig.iconColor,
                           size: SizeConfig.size20,
                         ),
                       ),
                     ],
                   ),
+
                   hintText: "Make it strong",
+                  hintStyle: TextStyle(
+                    color: ColorConfig.iconColor.withValues(alpha: 0.5),
+                  ),
                   //enable: textField를 클릭하여 입력을 시도 혹은 하는 중일 때
                   enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.grey.shade400),
+                    borderSide: BorderSide(color: ColorConfig.iconColor),
                   ),
                   focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.grey.shade400),
+                    borderSide: BorderSide(color: ColorConfig.iconColor),
                   ),
                 ),
-                cursorColor: Theme.of(context).primaryColor,
+                cursorColor: ColorConfig.iconColor,
               ),
               GapConfig.v16,
               const Text(
@@ -183,8 +199,12 @@ class _PasswordScreenState extends State<PasswordScreen> {
                         : Colors.grey.shade400,
                   ),
                   GapConfig.h5,
-                  const Text(
-                    'uppercase letters, lowercase letters, numbers, and symbols.',
+                  Expanded(
+                    child: Text(
+                      'uppercase letters, lowercase letters, numbers, and symbols.',
+                      softWrap: true, // 줄바꿈 허용
+                      overflow: TextOverflow.visible, // 잘리지 않게
+                    ),
                   ),
                 ],
               ),

@@ -5,8 +5,7 @@ import 'package:when2meet/dimensions/configs/screenConfig.dart';
 import 'package:when2meet/dimensions/configs/sizeConfig.dart';
 import 'package:when2meet/dimensions/configs/gapConfig.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:when2meet/screens/account/emailScreen.dart';
-import 'package:when2meet/screens/account/loginScreen.dart';
+import 'package:when2meet/screens/account/loginFormScreen.dart';
 
 class SignUpIntroScreen extends StatefulWidget {
   const SignUpIntroScreen({super.key});
@@ -33,16 +32,10 @@ class _SignUpIntroScreenState extends State<SignUpIntroScreen> {
     sc.updateScreenVariables(size);
   }
 
-  void _onLoginTap(BuildContext context) {
+  void onLogInTap() {
     Navigator.of(
       context,
-    ).push(MaterialPageRoute(builder: (context) => const LogInScreen()));
-  }
-
-  void _onEmailTap(BuildContext context) {
-    Navigator.of(
-      context,
-    ).push(MaterialPageRoute(builder: (context) => const EmailScreen()));
+    ).push(MaterialPageRoute(builder: (context) => const LoginFormScreen()));
   }
 
   @override
@@ -57,6 +50,8 @@ class _SignUpIntroScreenState extends State<SignUpIntroScreen> {
           );
         } */
         return Scaffold(
+          //입력 키보드가 렌더링에 영향을 주지 않도록 설정
+          resizeToAvoidBottomInset: false,
           backgroundColor: ColorConfig.primaryColor,
           body: SafeArea(
             child: Padding(
@@ -105,16 +100,13 @@ class _SignUpIntroScreenState extends State<SignUpIntroScreen> {
                     textAlign: TextAlign.left,
                   ),
                   SizedBox(height: sc.screenHeight / 5),
-                  GestureDetector(
-                    onTap: () => _onEmailTap(context),
-                    child: const AuthButton(
-                      auth: "Sign up",
-                      icon: FaIcon(
-                        FontAwesomeIcons.user,
-                        color: ColorConfig.iconColor,
-                      ),
-                      text: "Use email & password",
+                  const AuthButton(
+                    auth: "Sign up",
+                    icon: FaIcon(
+                      FontAwesomeIcons.user,
+                      color: ColorConfig.iconColor,
                     ),
+                    text: "Use email & password",
                   ),
                 ],
               ),
@@ -138,7 +130,7 @@ class _SignUpIntroScreenState extends State<SignUpIntroScreen> {
                   ),
                   GapConfig.h5,
                   GestureDetector(
-                    onTap: () => _onLoginTap(context),
+                    onTap: () => onLogInTap(),
                     child: Text(
                       'Log in',
                       style: TextStyle(

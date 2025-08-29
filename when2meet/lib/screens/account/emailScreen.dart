@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:when2meet/buttons/formButton.dart';
 import 'package:when2meet/dimensions/configs/ColorConfig.dart';
 import 'package:when2meet/dimensions/configs/gapConfig.dart';
 import 'package:when2meet/dimensions/configs/sizeConfig.dart';
 import 'package:when2meet/screens/account/passwordScreen.dart';
+import 'package:when2meet/screens/account/phonenumScreen.dart';
 
 class EmailScreen extends StatefulWidget {
   const EmailScreen({super.key});
@@ -63,7 +65,7 @@ class _EmailScreenState extends State<EmailScreen> {
     if (_email.isNotEmpty && _isEmailValid() == null) {
       Navigator.of(
         context,
-      ).push(MaterialPageRoute(builder: (context) => const PasswordScreen()));
+      ).push(MaterialPageRoute(builder: (context) => const PhonenumScreen()));
     }
   }
 
@@ -72,16 +74,13 @@ class _EmailScreenState extends State<EmailScreen> {
     return GestureDetector(
       onTap: _onScaffoldTap,
       child: Scaffold(
+        //입력 키보드가 렌더링에 영향을 주지 않도록 설정
+        resizeToAvoidBottomInset: false,
         backgroundColor: ColorConfig.primaryColor,
         appBar: AppBar(
-          title: Text(
-            "Sign Up",
-            style: TextStyle(
-              fontSize: SizeConfig.size32,
-              fontWeight: FontWeight.bold,
-              color: ColorConfig.iconColor,
-            ),
-          ),
+          backgroundColor: ColorConfig.primaryColor,
+          foregroundColor: ColorConfig.iconColor,
+          title: Text("Email", style: TextStyle(color: ColorConfig.iconColor)),
         ),
         body: Padding(
           padding: const EdgeInsets.symmetric(
@@ -100,26 +99,37 @@ class _EmailScreenState extends State<EmailScreen> {
                 ),
               ),
               GapConfig.v16,
-              TextField(
+              TextFormField(
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
                 autocorrect: false,
                 //키보드에서 'done' 혹은 '완료'버튼을 눌렀을 때도 next버튼을
                 //눌렀을 때와 동일하게 작동하게 만드는 것
                 onEditingComplete: _onNextTap,
+                style: TextStyle(color: ColorConfig.iconColor),
                 decoration: InputDecoration(
-                  focusColor: ColorConfig.iconColor,
                   hintText: "Email",
-                  errorText: _isEmailValid(),
-                  //enable: textField를 클릭하여 입력을 시도 혹은 하는 중일 때
+                  hintStyle: TextStyle(
+                    color: ColorConfig.iconColor.withValues(alpha: 0.5),
+                  ),
                   enabledBorder: UnderlineInputBorder(
                     borderSide: BorderSide(color: Colors.grey.shade400),
                   ),
                   focusedBorder: UnderlineInputBorder(
                     borderSide: BorderSide(color: Colors.grey.shade400),
                   ),
+                  focusColor: ColorConfig.iconColor,
+                  hoverColor: ColorConfig.iconColor,
+                  // filled: true,
+                  // fillColor: ColorConfig.secondaryColor, // 배경색 쓰실 거면 filled도 함께
                 ),
-                cursorColor: Theme.of(context).primaryColor,
+                cursorColor: ColorConfig.iconColor,
+                // 입력 단계에서 한글/이모지/허용 외 문자 차단
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(
+                    RegExp(r"[a-zA-Z0-9@._\-+!#$%&'*+/=?^_`{|}~]"),
+                  ),
+                ],
               ),
               GapConfig.v16,
               //'_email.isEmpty || _isEmailValid() != null'의 논리연산 값이 전달됨

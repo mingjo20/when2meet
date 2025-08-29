@@ -3,6 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:when2meet/buttons/authButton.dart';
 import 'package:when2meet/dimensions/configs/gapConfig.dart';
 import 'package:when2meet/dimensions/configs/sizeConfig.dart';
+//이 screen은 아마 사용하지 않을 것임!
 
 class LogInScreen extends StatelessWidget {
   const LogInScreen({super.key});

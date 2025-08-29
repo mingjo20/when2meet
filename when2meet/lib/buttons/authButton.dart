@@ -3,7 +3,7 @@ import 'package:when2meet/dimensions/configs/colorConfig.dart';
 import 'package:when2meet/dimensions/configs/sizeConfig.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:when2meet/screens/account/loginFormScreen.dart';
-import 'package:when2meet/screens/account/usernameScreen.dart';
+import 'package:when2meet/screens/account/nameScreen.dart';
 
 class AuthButton extends StatelessWidget {
   final FaIcon icon;
@@ -21,7 +21,7 @@ class AuthButton extends StatelessWidget {
       if (auth == "Sign up") {
         Navigator.of(
           context,
-        ).push(MaterialPageRoute(builder: (context) => UsernameScreen()));
+        ).push(MaterialPageRoute(builder: (context) => NameScreen()));
       } else if (auth == "Log in") {
         Navigator.of(
           context,
